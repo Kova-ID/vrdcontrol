@@ -1248,10 +1248,17 @@
                         <span>📍 ${project.points.length} pts</span>
                         <span>✅ ${stats.done}/${project.points.length}</span>
                     </div>
-                    <button class="btn-icon btn-delete-project" onclick="event.stopPropagation(); deleteProjectConfirm('${project.id}')" title="Supprimer projet">
+                    <button class="btn-icon btn-delete-project" data-project-id="${project.id}" title="Supprimer projet">
                         🗑️
                     </button>
                 `;
+                
+                // Add delete button event listener after card is created
+                const deleteBtn = card.querySelector('.btn-delete-project');
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteProjectConfirm(project.id);
+                });
                 
                 projectList.appendChild(card);
             });
@@ -2081,25 +2088,11 @@
             // Reset cancellation flag
             reportGenerationCancelled = false;
             
-            // Show loading indicator with cancel button
+            // Show loading indicator
             const button = document.querySelector('#projectTools button[onclick="generateReport()"]');
             const originalText = button.textContent;
             button.textContent = '⏳ Génération...';
             button.disabled = true;
-            
-            // Add cancel button
-            const cancelBtn = document.createElement('button');
-            cancelBtn.className = 'btn btn-danger';
-            cancelBtn.innerHTML = '❌ Annuler';
-            cancelBtn.style.marginLeft = '8px';
-            cancelBtn.onclick = () => {
-                if (confirm('❌ Annuler la génération du rapport ?')) {
-                    reportGenerationCancelled = true;
-                    cancelBtn.textContent = '⏹️ Annulation...';
-                    cancelBtn.disabled = true;
-                }
-            };
-            button.parentElement.appendChild(cancelBtn);
             
             try {
                 // NE PAS trier - garder l'ordre de création (numérotation correcte)
@@ -2527,15 +2520,9 @@
                 console.error('Erreur génération rapport:', error);
                 alert('❌ Erreur lors de la génération du rapport: ' + error.message);
             } finally {
-                // Restore button and remove cancel button
+                // Restore button
                 button.textContent = originalText;
                 button.disabled = false;
-                
-                // Remove cancel button if it exists
-                const cancelBtn = button.parentElement.querySelector('.btn-danger');
-                if (cancelBtn && cancelBtn.textContent.includes('Annul')) {
-                    cancelBtn.remove();
-                }
             }
         }
 
