@@ -19,7 +19,9 @@ let reportGenerationCancelled = false;
 async function initApp() {
     await loadProjects();
     await loadArchives();
-    updateArchiveCount();
+    // Update archive count badge directly (safe - no dependency on load order)
+    var archiveCountEl = document.getElementById('archiveCount');
+    if (archiveCountEl) archiveCountEl.textContent = archives.length;
     initMap();
     renderProjects();
     cleanExpiredArchives();
